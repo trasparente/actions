@@ -7,3 +7,4 @@ Actions playground
 1. print actor and repo
 1. print actor and repo.name
 1. curl and print FILES
+1. added [event]([print.yaml](https://github.com/trasparente/actions/blob/main/.github/workflows/print.yml))
