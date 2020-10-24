@@ -5,3 +5,5 @@ Actions playground
 1. printed number, printing payload
 1. print actor.login and repo.name
 1. print actor and repo
+1. print actor and repo.name
+1. curl and print FILES

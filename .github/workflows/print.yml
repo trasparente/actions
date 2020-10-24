@@ -17,9 +17,13 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      - id: checkout
+        name: checkout
+        uses: actions/checkout@v2
       # Runs a single command using the runners shell
-      - name: echo
+      - id: echo
+        name: echo
         run: |
-          echo ${{ github.event.pull_request.actor }}
-          echo ${{ github.event.pull_request.repo }}
-          echo ${{ github.event.pull_request.number }}
+          URL="https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files"
+          FILES=$(curl -s -X GET -G $URL | jq -r '.[] | .filename')
+          echo $FILES
