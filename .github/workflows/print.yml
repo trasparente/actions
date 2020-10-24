@@ -24,21 +24,48 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
       # Runs a single command using the runners shell
+      - id: login
+        name: login
+        run: |
+          URL="https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}"
+          LOGIN=$(curl -s -X GET -G $URL | jq -r '.user.login')
+          echo ::set-output name=login::$LOGIN
       - id: files
         name: files
         run: |
           URL="https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files"
           FILES=$(curl -s -X GET -G $URL | jq -r '.[] | .filename')
           echo $FILES
-      - id: login
-        name: login
-        run: |
-          URL="https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}"
-          LOGIN=$(curl -s -X GET -G $URL | jq -r '.user.login')
-          echo $LOGIN
+          echo $login
+        env:
+          login: ${{ steps.login.outputs.login }}
       - id: automerge
         name: automerge
         uses: pascalgn/automerge-action@v0.12.0
         env:
           MERGE_LABELS: ""
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}       
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}     
+            - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+      - name: Dump job context
+        env:
+          JOB_CONTEXT: ${{ toJson(job) }}
+        run: echo "$JOB_CONTEXT"
+      - name: Dump steps context
+        env:
+          STEPS_CONTEXT: ${{ toJson(steps) }}
+        run: echo "$STEPS_CONTEXT"
+      - name: Dump runner context
+        env:
+          RUNNER_CONTEXT: ${{ toJson(runner) }}
+        run: echo "$RUNNER_CONTEXT"
+      - name: Dump strategy context
+        env:
+          STRATEGY_CONTEXT: ${{ toJson(strategy) }}
+        run: echo "$STRATEGY_CONTEXT"
+      - name: Dump matrix context
+        env:
+          MATRIX_CONTEXT: ${{ toJson(matrix) }}
+        run: echo "$MATRIX_CONTEXT"
