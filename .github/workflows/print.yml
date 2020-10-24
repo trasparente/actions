@@ -20,6 +20,4 @@ jobs:
       # Runs a single command using the runners shell
       - name: echo
         run: |
-          echo ${{ github.event.pull_request.number }}
-          echo ${{ github.event.pull_request.sender }}
-          echo ${{ github.event.pull_request.sender.login }}
+          echo ${{ github.event.pull_request }}
