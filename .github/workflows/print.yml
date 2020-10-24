@@ -41,6 +41,7 @@ jobs:
           login: ${{ steps.login.outputs.login }}
       - id: automerge
         name: automerge
+        needs: files
         uses: pascalgn/automerge-action@v0.12.0
         env:
           MERGE_LABELS: ""
@@ -51,21 +52,5 @@ jobs:
         run: echo "$GITHUB_CONTEXT"
       - name: Dump job context
         env:
-          JOB_CONTEXT: ${{ toJson(job) }}
-        run: echo "$JOB_CONTEXT"
-      - name: Dump steps context
-        env:
-          STEPS_CONTEXT: ${{ toJson(steps) }}
-        run: echo "$STEPS_CONTEXT"
-      - name: Dump runner context
-        env:
-          RUNNER_CONTEXT: ${{ toJson(runner) }}
-        run: echo "$RUNNER_CONTEXT"
-      - name: Dump strategy context
-        env:
-          STRATEGY_CONTEXT: ${{ toJson(strategy) }}
-        run: echo "$STRATEGY_CONTEXT"
-      - name: Dump matrix context
-        env:
-          MATRIX_CONTEXT: ${{ toJson(matrix) }}
-        run: echo "$MATRIX_CONTEXT"
+          USER_LOGIN: ${{ github.event.pull_request.user.login }}
+        run: echo "$USER_LOGIN"
