@@ -20,4 +20,4 @@ jobs:
       # Runs a single command using the runners shell
       - name: echo
         run: |
-          echo ${{ github.event.pull_request }} | jq '.'
+          echo '${{ github.event.pull_request }}' | jq '.'
