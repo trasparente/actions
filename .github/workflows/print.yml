@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: print
+name: print echo jq
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the main branch
@@ -20,4 +20,4 @@ jobs:
       # Runs a single command using the runners shell
       - name: echo
         run: |
-          echo ${{ github.event.pull_request }}
+          echo ${{ github.event.pull_request }} | jq '.'
