@@ -20,6 +20,9 @@ jobs:
       - id: checkout
         name: checkout
         uses: actions/checkout@v2
+          with:
+            ref: ${{ github.event.pull_request.head.ref }}
+            repository: ${{ github.event.pull_request.head.repo.full_name }}
       # Runs a single command using the runners shell
       - id: files
         name: files
@@ -33,3 +36,8 @@ jobs:
           URL="https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}"
           LOGIN=$(curl -s -X GET -G $URL | jq -r '.user.login')
           echo $LOGIN
+      - id: automerge
+        name: automerge
+        uses: pascalgn/automerge-action@0.12.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}       
