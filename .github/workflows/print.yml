@@ -34,7 +34,7 @@ jobs:
         name: files
         run: |
           URL="https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files"
-          FILES=$(curl -s -X GET -G $URL | jq -r '.[] | .filename')
+          FILES=$(curl -s -X GET -G $URL | jq -r '.[] | .filename, .status')
           echo $FILES
           echo $login
         env:
