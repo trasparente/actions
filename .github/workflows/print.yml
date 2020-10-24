@@ -21,9 +21,15 @@ jobs:
         name: checkout
         uses: actions/checkout@v2
       # Runs a single command using the runners shell
-      - id: echo
-        name: echo
+      - id: files
+        name: files
         run: |
           URL="https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files"
           FILES=$(curl -s -X GET -G $URL | jq -r '.[] | .filename')
           echo $FILES
+      - id: login
+        name: login
+        run: |
+          URL="https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}"
+          LOGIN=$(curl -s -X GET -G $URL | jq -r '.user.login')
+          echo $LOGIN
