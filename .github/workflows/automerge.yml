@@ -1,0 +1,117 @@
+name: Check for automerge
+on:
+  # Improvements for public repository forks
+  # new `pull_request_target` event
+  # https://github.blog/2020-08-03-github-actions-improvements-for-fork-and-pull-request-workflows/
+  pull_request_target:
+    # By default workflow runs on `opened` type
+    types: [ opened ]
+    branches: [ main ]
+    # If at least one path matches a pattern in the paths filter, the workflow runs
+    paths: [ '_data/players/**' ]
+# A workflow run is made up of one or more jobs
+# They can run sequentially or in parallel
+jobs:
+  main:
+    name: Automerge
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout
+      - uses: actions/checkout@v2
+      # Pass output between steps
+      - id: set_output
+        name: Set output
+        # Syntax is `echo ::set-output name=< var name >::< var value >`
+        run: echo ::set-output name=var_name::example_value
+      - name: Get output
+        # Syntax is env: < var name >: ${{ steps.< step.id >.outputs.< var name > }}
+        env:
+          var: ${{ steps.set_output.outputs.var_name }}
+        run: echo $var
+      # Dump GitHub context
+      - name: Dump GitHub context
+        run: echo "${{ toJson(github) }}"
+      # Start checks
+      - name: Check changed_files
+        run: |
+          if [[ "${{ github.event.pull_request.changed_files }}" != "1" ]]; then
+            echo changed_files not equal 1
+            exit 0
+          else
+            echo "changed_files equal 1"
+            exit 0
+          fi
+      - name: Check additions
+        run: |
+          if [[ "${{ github.event.pull_request.additions }}" != "1" ]]; then
+            echo additions not equal 1
+            exit 0
+          else
+            echo "additions equal 1"
+            exit 0
+          fi
+      - name: Check deletions
+        run: |
+          if [[ "${{ github.event.pull_request.deletions }}" != "0" ]]; then
+            echo "deletions not equal 0"
+            exit 0
+          else
+            echo "deletions equal 0"
+            exit 0
+          fi
+      - name: Curl pull request files and set variabiles
+        id: set_vars
+        run: |
+          URL="https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files"
+          FILES=$(curl -s -X GET -G $URL | jq -r '.[]')
+          $filename=$(echo $FILES | jq '.filename')
+          echo ::set-output name=filename::$filename
+          $status=$(echo $FILES | jq '.status')
+          echo ::set-output name=status::$status
+      - name: Check actor in filename
+        env:
+          var: ${{ steps.set_vars.outputs.filename }}
+        run: |
+          echo "compare $filename with ${{ github.actor }}"
+          if [[ "$filename" =~ "${{ github.actor }}" ]]; then
+            echo "filename contain actor"
+            exit 0
+          else
+            echo "filename do not contain actor"
+            exit 0
+          fi
+      - name: Check file status
+        env:
+          var: ${{ steps.set_vars.outputs.status }}
+        run: |
+          echo "compare $status with added"
+          if [[ $status != "added" ]]; then
+            echo "status is not added"
+            exit 0
+          else
+            echo "status is not added"
+            exit 0
+          fi
+      - name: Dump github.event.pull_request object
+        run: |
+          echo "changed_files: ${{ github.event.pull_request.changed_files }}"
+          echo "additions: ${{ github.event.pull_request.additions }}"
+          echo "deletions: ${{ github.event.pull_request.deletions }}"
+          echo "author_association: ${{ github.event.pull_request.author_association }}"
+          echo "head.repo.full_name: ${{ github.event.pull_request.head.repo.full_name }}"
+          echo "head.repo.fork: ${{ github.event.pull_request.head.repo.fork }}"
+      - name: Close pull request (on failure)
+        # true when any previous step of a job fails
+        if: failure()
+        # thanks to SiliconLabs and silabs-DavidS
+        uses: petrosh/close-pull-request-target@v2.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Automerge (in success)
+        # true if none of the previous steps have failed
+        if: success()
+        uses: pascalgn/automerge-action@v0.12.0
+        env:
+          MERGE_LABELS: ""
+          MERGE_COMMIT_MESSAGE: "pull-request-title-and-description"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
