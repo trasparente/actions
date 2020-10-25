@@ -59,5 +59,9 @@ jobs:
           echo "github.event.pull_request.additions: ${{ github.event.pull_request.additions }}"
           echo "github.event.pull_request.deletions: ${{ github.event.pull_request.deletions }}"
           echo "github.event.pull_request.author_association: ${{ github.event.pull_request.author_association }}"
-          echo "github.event.pull_request.head.label: ${{ github.event.pull_request.head.repo.full_name }}"
+          echo "github.event.pull_request.head.repo.full_name: ${{ github.event.pull_request.head.repo.full_name }}"
           echo "github.event.pull_request.head.repo.fork: ${{ github.event.pull_request.head.repo.fork }}"
+      - name: exit success
+        run: exit 0
+      - name: exit error
+        run: exit 1
