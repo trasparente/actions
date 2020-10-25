@@ -40,7 +40,7 @@ jobs:
           FILES=$(curl -s -X GET -G $URL | jq -r '.[]')
           filename=$(echo $FILES | jq '.filename')
           status=$(echo $FILES | jq '.status')
-          actor=${{ github.actor }}"
+          actor=${{ github.actor }}
           if [[ ! $filename =~ $actor ]]; then
             exit 1
           elif [[ $status != "created" ]]; then
