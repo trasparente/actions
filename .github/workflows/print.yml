@@ -25,14 +25,14 @@ jobs:
           var: ${{ steps.set_output.outputs.var_name }}
         run: echo $var
       - # Check changed_files
-        name: Check changedfiles
-        run: echo 1
+        name: Check changed_files
+        run: if [[ "${{ github.event.pull_request.changed_files }}" == "1" ]]; then exit 1
       - # Check additions
         name: Check additions
-        run: [ "${{ github.event.pull_request.additions }}" == "1" ] && exit 1
+        run: if [[ "${{ github.event.pull_request.additions }}" == "1" ]]; then exit 1
       - # Check deletions
         name: Check deletions
-        run: [ "${{ github.event.pull_request.deletions }}" == "0" ] && exit 1
+        run: if [[ "${{ github.event.pull_request.deletions }}" == "0" ]]; then exit 1
       - # Curl pull request files
         name: Examine pull request files
         run: |
@@ -42,10 +42,8 @@ jobs:
           status=$(echo $FILES | jq '.status')
           actor=${{ github.actor }}"
           if [[ ! $filename =~ $actor ]]; then
-	    echo "filename do not contain actor"
-	    exit 1
+            exit 1
           elif [[ $status != "created" ]]; then
-	    echo "file not created"
             exit 1
           fi
       - name: Dump GitHub context
