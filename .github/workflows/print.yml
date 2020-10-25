@@ -1,5 +1,4 @@
-name: Automerge
-description: Check for automerge
+name: Check for automerge
 on:
   # Improvements for public repository forks
   # new `pull_request_target` event
