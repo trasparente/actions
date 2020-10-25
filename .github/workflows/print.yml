@@ -4,8 +4,10 @@ on:
   # new `pull_request_target` event
   # https://github.blog/2020-08-03-github-actions-improvements-for-fork-and-pull-request-workflows/
   pull_request_target:
-    # By default workflow runs on `opened` type 
+    # By default workflow runs on `opened` type
+    types: [ opened ]
     branches: [ main ]
+    paths: 
 # A workflow run is made up of one or more jobs
 # They can run sequentially or in parallel
 jobs:
@@ -26,13 +28,13 @@ jobs:
         run: echo $var
       - # Check changed_files
         name: Check changed_files
-        run: if [[ "${{ github.event.pull_request.changed_files }}" != "1" ]]; then exit 1; fi
+        run: if [[ "${{ github.event.pull_request.changed_files }}" != "1" ]]; then exit 0; fi
       - # Check additions
         name: Check additions
-        run: if [[ "${{ github.event.pull_request.additions }}" != "1" ]]; then exit 1; fi
+        run: if [[ "${{ github.event.pull_request.additions }}" != "1" ]]; then exit 0; fi
       - # Check deletions
         name: Check deletions
-        run: if [[ "${{ github.event.pull_request.deletions }}" != "0" ]]; then exit 1; fi
+        run: if [[ "${{ github.event.pull_request.deletions }}" != "0" ]]; then exit 0; fi
       - # Curl pull request files
         name: Examine pull request files
         run: |
@@ -60,11 +62,18 @@ jobs:
           echo "github.event.pull_request.author_association: ${{ github.event.pull_request.author_association }}"
           echo "github.event.pull_request.head.repo.full_name: ${{ github.event.pull_request.head.repo.full_name }}"
           echo "github.event.pull_request.head.repo.fork: ${{ github.event.pull_request.head.repo.fork }}"
-      - name: Automerge
-        # none of the previous steps have failed
+      - name: Close pull request (on failure)
+        # true when any previous step of a job fails
+        if: failure()
+        uses: SiliconLabs/close-pull-request-target@v2.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Automerge (in success)
+        # true if none of the previous steps have failed
         if: success()
         uses: pascalgn/automerge-action@v0.12.0
         env:
           MERGE_LABELS: ""
           MERGE_COMMIT_MESSAGE: "pull-request-title-and-description"
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
