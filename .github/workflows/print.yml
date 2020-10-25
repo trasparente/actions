@@ -65,7 +65,8 @@ jobs:
       - name: Close pull request (on failure)
         # true when any previous step of a job fails
         if: failure()
-        uses: SiliconLabs/close-pull-request-target@v2.2
+        # thanks to SiliconLabs and silabs-DavidS
+        uses: petrosh/close-pull-request-target@v2.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Automerge (in success)
