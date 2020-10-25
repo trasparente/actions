@@ -1,3 +1,4 @@
 action: eat
 commands:
   - action: rearm
+  - digest: true
