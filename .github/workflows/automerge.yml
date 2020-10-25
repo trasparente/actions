@@ -7,53 +7,87 @@ on:
     # By default workflow runs on `opened` type
     types: [ opened ]
     branches: [ main ]
+    # If at least one path matches a pattern in the paths filter, the workflow runs
     paths: [ '_data/players/**' ]
 # A workflow run is made up of one or more jobs
 # They can run sequentially or in parallel
 jobs:
   main:
-    name: Main job
+    name: Automerge
     runs-on: ubuntu-latest
     steps:
+      # Checkout
       - uses: actions/checkout@v2
       # Pass output between steps
-      - # Syntax is ::set-output name=< var name >::< var value >
-        id: set_output
+      - id: set_output
         name: Set output
+        # Syntax is `echo ::set-output name=< var name >::< var value >`
         run: echo ::set-output name=var_name::example_value
-      - # Syntax is env: < var name >: ${{ steps.< step.id >.outputs.< var name > }}
-        name: Get output
+      - name: Get output
+        # Syntax is env: < var name >: ${{ steps.< step.id >.outputs.< var name > }}
         env:
           var: ${{ steps.set_output.outputs.var_name }}
         run: echo $var
-      - # Check changed_files
-        name: Check changed_files
-        run: if [[ "${{ github.event.pull_request.changed_files }}" != "1" ]]; then exit 0; fi
-      - # Check additions
-        name: Check additions
-        run: if [[ "${{ github.event.pull_request.additions }}" != "1" ]]; then exit 0; fi
-      - # Check deletions
-        name: Check deletions
-        run: if [[ "${{ github.event.pull_request.deletions }}" != "0" ]]; then exit 0; fi
-      - # Curl pull request files
-        name: Examine pull request files
+      # Dump GitHub context
+      - name: Dump GitHub context
+        run: echo "${{ toJson(github) }}"
+      # Start checks
+      - name: Check changed_files
+        run: |
+          if [[ "${{ github.event.pull_request.changed_files }}" != "1" ]]; then
+            echo changed_files not equal 1
+            exit 0
+          else
+            echo "changed_files equal 1"
+            exit 0
+          fi
+      - name: Check additions
+        run: |
+          if [[ "${{ github.event.pull_request.additions }}" != "1" ]]; then
+            echo additions not equal 1
+            exit 0
+          else
+            echo "additions equal 1"
+            exit 0
+          fi
+      - name: Check deletions
+        run: |
+          if [[ "${{ github.event.pull_request.deletions }}" != "0" ]]; then
+            echo "deletions not equal 0"
+            exit 0
+          else
+            echo "deletions equal 0"
+            exit 0
+          fi
+      - name: Curl pull request files and set variabiles
+        id: set_vars
         run: |
           URL="https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files"
           FILES=$(curl -s -X GET -G $URL | jq -r '.[]')
-          filename=$(echo $FILES | jq '.filename')
-          status=$(echo $FILES | jq '.status')
-          actor=${{ github.actor }}
-          if [[ ! $filename =~ $actor ]]; then
+          echo ::set-output name=filename::$(echo $FILES | jq '.filename')
+          echo ::set-output name=status::$(echo $FILES | jq '.status')
+      - name: Check actor in filename
+        env:
+          var: ${{ steps.set_vars.outputs.filename }}
+        run: |
+          if [[ "$filename" =~ "${{ github.actor }}" ]]; then
+            echo "filename contain actor"
+            exit 0
+          else
             echo "filename do not contain actor"
             exit 0
-          elif [[ $status != "created" ]]; then
+          fi
+      - name: Check file status
+        env:
+          var: ${{ steps.set_vars.outputs.status }}
+        run: |
+          if [[ $status != "created" ]]; then
+            echo "status is not created"
+            exit 0
+          else
             echo "status is not created"
             exit 0
           fi
-      - name: Dump GitHub context
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: echo "$GITHUB_CONTEXT"
       - name: Dump github.event.pull_request object
         run: |
           echo "github.event.pull_request.changed_files: ${{ github.event.pull_request.changed_files }}"
@@ -77,4 +111,3 @@ jobs:
           MERGE_LABELS: ""
           MERGE_COMMIT_MESSAGE: "pull-request-title-and-description"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        
