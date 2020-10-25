@@ -70,6 +70,7 @@ jobs:
         env:
           var: ${{ steps.set_vars.outputs.filename }}
         run: |
+          echo "compare $filename with ${{ github.actor }}"
           if [[ "$filename" =~ "${{ github.actor }}" ]]; then
             echo "filename contain actor"
             exit 0
@@ -81,21 +82,22 @@ jobs:
         env:
           var: ${{ steps.set_vars.outputs.status }}
         run: |
-          if [[ $status != "created" ]]; then
-            echo "status is not created"
+          echo "compare $status with added"
+          if [[ $status != "added" ]]; then
+            echo "status is not added"
             exit 0
           else
-            echo "status is not created"
+            echo "status is not added"
             exit 0
           fi
       - name: Dump github.event.pull_request object
         run: |
-          echo "github.event.pull_request.changed_files: ${{ github.event.pull_request.changed_files }}"
-          echo "github.event.pull_request.additions: ${{ github.event.pull_request.additions }}"
-          echo "github.event.pull_request.deletions: ${{ github.event.pull_request.deletions }}"
-          echo "github.event.pull_request.author_association: ${{ github.event.pull_request.author_association }}"
-          echo "github.event.pull_request.head.repo.full_name: ${{ github.event.pull_request.head.repo.full_name }}"
-          echo "github.event.pull_request.head.repo.fork: ${{ github.event.pull_request.head.repo.fork }}"
+          echo "changed_files: ${{ github.event.pull_request.changed_files }}"
+          echo "additions: ${{ github.event.pull_request.additions }}"
+          echo "deletions: ${{ github.event.pull_request.deletions }}"
+          echo "author_association: ${{ github.event.pull_request.author_association }}"
+          echo "head.repo.full_name: ${{ github.event.pull_request.head.repo.full_name }}"
+          echo "head.repo.fork: ${{ github.event.pull_request.head.repo.fork }}"
       - name: Close pull request (on failure)
         # true when any previous step of a job fails
         if: failure()
