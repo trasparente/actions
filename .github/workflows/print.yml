@@ -1,61 +1,80 @@
-# This is a basic workflow to help you get started with Actions
-
-name: print echo jq
-
-# Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the main branch
+name: Check for automerge
 on:
-  pull_request:
+  # Improvements for public repository forks
+  # new `pull_request_target` event
+  # https://github.blog/2020-08-03-github-actions-improvements-for-fork-and-pull-request-workflows/
+  pull_request_target:
+    # By default workflow runs on `opened` type
+    types: [ opened ]
     branches: [ main ]
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+    paths: [ '_data/players/**' ]
+# A workflow run is made up of one or more jobs
+# They can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  print:
-    # The type of runner that the job will run on
+  main:
+    name: Main job
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - id: checkout
-        name: checkout
-        uses: actions/checkout@v2
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-      # Runs a single command using the runners shell
-      - id: login
-        name: login
-        run: |
-          URL="https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}"
-          LOGIN=$(curl -s -X GET -G $URL | jq -r '.user.login')
-          echo ::set-output name=login::$LOGIN
-      - id: files
-        name: files
+      - uses: actions/checkout@v2
+      # Pass output between steps
+      - # Syntax is ::set-output name=< var name >::< var value >
+        id: set_output
+        name: Set output
+        run: echo ::set-output name=var_name::example_value
+      - # Syntax is env: < var name >: ${{ steps.< step.id >.outputs.< var name > }}
+        name: Get output
+        env:
+          var: ${{ steps.set_output.outputs.var_name }}
+        run: echo $var
+      - # Check changed_files
+        name: Check changed_files
+        run: if [[ "${{ github.event.pull_request.changed_files }}" != "1" ]]; then exit 0; fi
+      - # Check additions
+        name: Check additions
+        run: if [[ "${{ github.event.pull_request.additions }}" != "1" ]]; then exit 0; fi
+      - # Check deletions
+        name: Check deletions
+        run: if [[ "${{ github.event.pull_request.deletions }}" != "0" ]]; then exit 0; fi
+      - # Curl pull request files
+        name: Examine pull request files
         run: |
           URL="https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files"
-          FILES=$(curl -s -X GET -G $URL | jq -r '.[] | .filename, .status')
-          echo $FILES
-          echo $login
-        env:
-          login: ${{ steps.login.outputs.login }}
-      - id: automerge
-        name: automerge
-        uses: pascalgn/automerge-action@v0.12.0
-        env:
-          MERGE_LABELS: ""
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}     
+          FILES=$(curl -s -X GET -G $URL | jq -r '.[]')
+          filename=$(echo $FILES | jq '.filename')
+          status=$(echo $FILES | jq '.status')
+          actor=${{ github.actor }}
+          if [[ ! $filename =~ $actor ]]; then
+            echo "filename do not contain actor"
+            exit 0
+          elif [[ $status != "created" ]]; then
+            echo "status is not created"
+            exit 0
+          fi
       - name: Dump GitHub context
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
         run: echo "$GITHUB_CONTEXT"
-      - name: Dump user.login, changed_files, additions, deletions, author_association, head.label
-        env:
-          USER_LOGIN: ${{ github.event.pull_request.user.login }}
+      - name: Dump github.event.pull_request object
         run: |
-          echo "$USER_LOGIN"
-          echo ${{ github.event.pull_request.changed_files }}
-          echo ${{ github.event.pull_request.additions }}
-          echo ${{ github.event.pull_request.deletions }}
-          echo ${{ github.event.pull_request.author_association }}
-          echo ${{ github.event.pull_request.head.label }}
+          echo "github.event.pull_request.changed_files: ${{ github.event.pull_request.changed_files }}"
+          echo "github.event.pull_request.additions: ${{ github.event.pull_request.additions }}"
+          echo "github.event.pull_request.deletions: ${{ github.event.pull_request.deletions }}"
+          echo "github.event.pull_request.author_association: ${{ github.event.pull_request.author_association }}"
+          echo "github.event.pull_request.head.repo.full_name: ${{ github.event.pull_request.head.repo.full_name }}"
+          echo "github.event.pull_request.head.repo.fork: ${{ github.event.pull_request.head.repo.fork }}"
+      - name: Close pull request (on failure)
+        # true when any previous step of a job fails
+        if: failure()
+        # thanks to SiliconLabs and silabs-DavidS
+        uses: petrosh/close-pull-request-target@v2.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Automerge (in success)
+        # true if none of the previous steps have failed
+        if: success()
+        uses: pascalgn/automerge-action@v0.12.0
+        env:
+          MERGE_LABELS: ""
+          MERGE_COMMIT_MESSAGE: "pull-request-title-and-description"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
