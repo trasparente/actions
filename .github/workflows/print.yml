@@ -36,7 +36,8 @@ jobs:
           URL="https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files"
           FILES=$(curl -s -X GET -G $URL | jq -r '.[] | .filename, .status')
           echo $FILES
-          echo $login
+          echo "CURL .user.login: $login"
+          echo "github.event.actor: ${{ github.event.actor }}"
         env:
           login: ${{ steps.login.outputs.login }}
       - id: automerge
@@ -49,13 +50,14 @@ jobs:
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
         run: echo "$GITHUB_CONTEXT"
-      - name: Dump user.login, changed_files, additions, deletions, author_association, head.label
+      - name: Dump github.event.pull_request object
         env:
           USER_LOGIN: ${{ github.event.pull_request.user.login }}
         run: |
-          echo "$USER_LOGIN"
-          echo ${{ github.event.pull_request.changed_files }}
-          echo ${{ github.event.pull_request.additions }}
-          echo ${{ github.event.pull_request.deletions }}
-          echo ${{ github.event.pull_request.author_association }}
-          echo ${{ github.event.pull_request.head.label }}
+          echo "github.event.pull_request.user.login: $USER_LOGIN"
+          echo "github.event.pull_request.changed_files: ${{ github.event.pull_request.changed_files }}"
+          echo "github.event.pull_request.additions: ${{ github.event.pull_request.additions }}"
+          echo "github.event.pull_request.deletions: ${{ github.event.pull_request.deletions }}"
+          echo "github.event.pull_request.author_association: ${{ github.event.pull_request.author_association }}"
+          echo "github.event.pull_request.head.label: ${{ github.event.pull_request.head.repo.full_name }}"
+          echo "github.event.pull_request.head.repo.fork: ${{ github.event.pull_request.head.repo.fork }}"
