@@ -7,7 +7,7 @@ on:
     # By default workflow runs on `opened` type
     types: [ opened ]
     branches: [ main ]
-    paths: 
+    paths: [ '_data/players/**' ]
 # A workflow run is made up of one or more jobs
 # They can run sequentially or in parallel
 jobs:
