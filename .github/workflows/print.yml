@@ -26,13 +26,13 @@ jobs:
         run: echo $var
       - # Check changed_files
         name: Check changed_files
-        run: if [[ "${{ github.event.pull_request.changed_files }}" != "1" ]]; then exit 1
+        run: if [[ "${{ github.event.pull_request.changed_files }}" != "1" ]]; then exit 1; fi
       - # Check additions
         name: Check additions
-        run: if [[ "${{ github.event.pull_request.additions }}" != "1" ]]; then exit 1
+        run: if [[ "${{ github.event.pull_request.additions }}" != "1" ]]; then exit 1; fi
       - # Check deletions
         name: Check deletions
-        run: if [[ "${{ github.event.pull_request.deletions }}" != "0" ]]; then exit 1
+        run: if [[ "${{ github.event.pull_request.deletions }}" != "0" ]]; then exit 1; fi
       - # Curl pull request files
         name: Examine pull request files
         run: |
