@@ -32,7 +32,6 @@ jobs:
         run: if [[ "${{ github.event.pull_request.additions }}" != "1" ]]; then exit 1; fi
       - # Check deletions
         name: Check deletions
-        bash conditional then multipline
         run: if [[ "${{ github.event.pull_request.deletions }}" != "0" ]]; then exit 1; fi
       - # Curl pull request files
         name: Examine pull request files
