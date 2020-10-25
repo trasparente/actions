@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: print echo jq
+name: Check for automerge
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the main branch
@@ -49,7 +49,6 @@ jobs:
           echo "filename: $filename"
           status=$(echo $FILES | jq '.status')
           echo "status: $status"
-          echo "filename property
           echo "github.actor: ${{ github.actor }}"
       - id: automerge
         name: automerge
