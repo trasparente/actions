@@ -11,7 +11,8 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  print:
+  automerge:
+    name: Automerge
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -23,23 +24,33 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
-      # Runs a single command using the runners shell
-      - id: login
-        name: login
-        run: |
-          URL="https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}"
-          LOGIN=$(curl -s -X GET -G $URL | jq -r '.user.login')
-          echo ::set-output name=login::$LOGIN
-      - id: files
+
+      # Pass output between steps
+      - # Syntax is ::set-output name=< var name >::< var value >
+        id: set_output
+        name: Set output
+        run: echo ::set-output name=var_name::example_value
+      - # Syntax is env: < var name >: ${{ steps.< step.id >.outputs.< var name > }}
+        id: get_output
+        name: Get output
+        env:
+          var: ${{ steps.set_output.outputs.var_name }}
+        run: echo $var
+
+      - # Curl pull request files
+        id: files
         name: files
         run: |
           URL="https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files"
-          FILES=$(curl -s -X GET -G $URL | jq -r '.[] | .filename, .status')
-          echo $FILES
-          echo "CURL .user.login: $login"
+          FILES=$(curl -s -X GET -G $URL | jq -r '.[]')
+          file_number=${#FILES[@]}
+          echo "number of files: ${#FILES[@]} ${file_number}"
+          filename=$(echo $FILES | jq '.filename')
+          echo "filename: $filename"
+          status=$(echo $FILES | jq '.status')
+          echo "status: $status"
+          echo "filename property
           echo "github.actor: ${{ github.actor }}"
-        env:
-          login: ${{ steps.login.outputs.login }}
       - id: automerge
         name: automerge
         uses: pascalgn/automerge-action@v0.12.0
@@ -51,10 +62,7 @@ jobs:
           GITHUB_CONTEXT: ${{ toJson(github) }}
         run: echo "$GITHUB_CONTEXT"
       - name: Dump github.event.pull_request object
-        env:
-          USER_LOGIN: ${{ github.event.pull_request.user.login }}
         run: |
-          echo "github.event.pull_request.user.login: $USER_LOGIN"
           echo "github.event.pull_request.changed_files: ${{ github.event.pull_request.changed_files }}"
           echo "github.event.pull_request.additions: ${{ github.event.pull_request.additions }}"
           echo "github.event.pull_request.deletions: ${{ github.event.pull_request.deletions }}"
