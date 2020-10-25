@@ -1,1 +1,3 @@
 action: eat
+commands:
+  - action: rearm
