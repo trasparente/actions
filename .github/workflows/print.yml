@@ -10,7 +10,7 @@ on:
 # They can run sequentially or in parallel
 jobs:
   main:
-    name: Automerge
+    name: Main job
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -20,26 +20,35 @@ jobs:
         name: Set output
         run: echo ::set-output name=var_name::example_value
       - # Syntax is env: < var name >: ${{ steps.< step.id >.outputs.< var name > }}
-        id: get_output
         name: Get output
         env:
           var: ${{ steps.set_output.outputs.var_name }}
         run: echo $var
+      - # Check changed_files
+        name: Check changed_files
+        run: [ "${{ github.event.pull_request.changed_files }}" == "1" ] && exit 1
+      - # Check additions
+        name: Check additions
+        run: [ "${{ github.event.pull_request.additions }}" == "1" ] && exit 1
+      - # Check deletions
+        name: Check deletions
+        run: [ "${{ github.event.pull_request.deletions }}" == "0" ] && exit 1
       - # Curl pull request files
-        id: files
-        name: files
+        name: Examine pull request files
         run: |
           URL="https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files"
           FILES=$(curl -s -X GET -G $URL | jq -r '.[]')
-          file_number=${#FILES[@]}
-          echo "number of files: ${#FILES[@]} ${file_number}"
           filename=$(echo $FILES | jq '.filename')
-          echo "filename: $filename"
           status=$(echo $FILES | jq '.status')
-          echo "status: $status"
-          echo "github.actor: ${{ github.actor }}"
-      - name: exit success
-        run: exit 0
+          actor=${{ github.actor }}"
+          if [[ ! $filename =~ $actor ]]; then
+            echo "filename do not contain actor"
+	          exit 1
+          fi
+          if [[ $status != "created" ]]; then
+            echo "file not created"
+	          exit 1
+          fi
       - name: Dump GitHub context
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
@@ -52,11 +61,11 @@ jobs:
           echo "github.event.pull_request.author_association: ${{ github.event.pull_request.author_association }}"
           echo "github.event.pull_request.head.repo.full_name: ${{ github.event.pull_request.head.repo.full_name }}"
           echo "github.event.pull_request.head.repo.fork: ${{ github.event.pull_request.head.repo.fork }}"
-      - id: automerge
-        name: automerge
+      - name: Automerge
         # none of the previous steps have failed
         if: success()
         uses: pascalgn/automerge-action@v0.12.0
         env:
           MERGE_LABELS: ""
+          MERGE_COMMIT_MESSAGE: "pull-request-title-and-description"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   
