@@ -25,7 +25,7 @@ jobs:
           var: ${{ steps.set_output.outputs.var_name }}
         run: echo $var
       - # Check changed_files
-        name: Check changed_files
+        name: Check changed files
         run: [[ "${{ github.event.pull_request.changed_files }}" == "1" ]] && exit 1
       - # Check additions
         name: Check additions
@@ -42,12 +42,11 @@ jobs:
           status=$(echo $FILES | jq '.status')
           actor=${{ github.actor }}"
           if [[ ! $filename =~ $actor ]]; then
-            echo "filename do not contain actor"
+	    echo "filename do not contain actor"
 	    exit 1
-          fi
-          if [[ $status != "created" ]]; then
-            echo "file not created"
-	    exit 1
+          elif [[ $status != "created" ]]; then
+	    echo "file not created"
+            exit 1
           fi
       - name: Dump GitHub context
         env:
