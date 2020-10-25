@@ -45,10 +45,10 @@ jobs:
           actor=${{ github.actor }}
           if [[ ! $filename =~ $actor ]]; then
             echo "filename do not contain actor"
-            exit 1
+            exit 0
           elif [[ $status != "created" ]]; then
             echo "status is not created"
-            exit 1
+            exit 0
           fi
       - name: Dump GitHub context
         env:
