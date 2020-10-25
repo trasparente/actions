@@ -37,7 +37,7 @@ jobs:
           FILES=$(curl -s -X GET -G $URL | jq -r '.[] | .filename, .status')
           echo $FILES
           echo "CURL .user.login: $login"
-          echo "github.event.actor: ${{ github.event.actor }}"
+          echo "github.actor: ${{ github.actor }}"
         env:
           login: ${{ steps.login.outputs.login }}
       - id: automerge
