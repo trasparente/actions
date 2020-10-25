@@ -32,6 +32,7 @@ jobs:
         run: if [[ "${{ github.event.pull_request.additions }}" != "1" ]]; then exit 1; fi
       - # Check deletions
         name: Check deletions
+        bash conditional then multipline
         run: if [[ "${{ github.event.pull_request.deletions }}" != "0" ]]; then exit 1; fi
       - # Curl pull request files
         name: Examine pull request files
@@ -42,8 +43,10 @@ jobs:
           status=$(echo $FILES | jq '.status')
           actor=${{ github.actor }}
           if [[ ! $filename =~ $actor ]]; then
+            echo "filename do not contain actor"
             exit 1
           elif [[ $status != "created" ]]; then
+            echo "status is not created"
             exit 1
           fi
       - name: Dump GitHub context
