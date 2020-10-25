@@ -3,3 +3,4 @@ commands:
   - action: rearm
   - digest: true
   - weather: sunny
+  - description: false
