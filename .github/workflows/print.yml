@@ -1,30 +1,20 @@
-# This is a basic workflow to help you get started with Actions
-
-name: Check for automerge
-
-# Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the main branch
+name: Automerge
+description: Check for automerge
 on:
+  # Improvements for public repository forks
+  # new `pull_request_target` event
+  # https://github.blog/2020-08-03-github-actions-improvements-for-fork-and-pull-request-workflows/
   pull_request_target:
+    # By default workflow runs on `opened` type 
     branches: [ main ]
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+# A workflow run is made up of one or more jobs
+# They can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  automerge:
+  main:
     name: Automerge
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - id: checkout
-        name: checkout
-        uses: actions/checkout@v2
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-
+      - uses: actions/checkout@v2
       # Pass output between steps
       - # Syntax is ::set-output name=< var name >::< var value >
         id: set_output
@@ -36,7 +26,6 @@ jobs:
         env:
           var: ${{ steps.set_output.outputs.var_name }}
         run: echo $var
-
       - # Curl pull request files
         id: files
         name: files
@@ -50,12 +39,8 @@ jobs:
           status=$(echo $FILES | jq '.status')
           echo "status: $status"
           echo "github.actor: ${{ github.actor }}"
-      - id: automerge
-        name: automerge
-        uses: pascalgn/automerge-action@v0.12.0
-        env:
-          MERGE_LABELS: ""
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}     
+      - name: exit success
+        run: exit 0
       - name: Dump GitHub context
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
@@ -68,7 +53,11 @@ jobs:
           echo "github.event.pull_request.author_association: ${{ github.event.pull_request.author_association }}"
           echo "github.event.pull_request.head.repo.full_name: ${{ github.event.pull_request.head.repo.full_name }}"
           echo "github.event.pull_request.head.repo.fork: ${{ github.event.pull_request.head.repo.fork }}"
-      - name: exit success
-        run: exit 0
-      - name: exit error
-        run: exit 1
+      - id: automerge
+        name: automerge
+        # none of the previous steps have failed
+        if: success()
+        uses: pascalgn/automerge-action@v0.12.0
+        env:
+          MERGE_LABELS: ""
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   
