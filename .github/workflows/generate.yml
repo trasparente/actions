@@ -1,4 +1,4 @@
-name: Check for automerge
+name: Generate from separate file
 on:
   # Improvements for public repository forks
   # new `pull_request_target` event
