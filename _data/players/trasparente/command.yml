@@ -1,5 +1,5 @@
-# Action can be: go, rest, sleep
-action: go
+# Action can be: go, rest, sleep, eat
+action: eat
 
 # Subject can be: home, ship
 subject: home
