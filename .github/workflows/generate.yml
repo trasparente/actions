@@ -21,7 +21,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const script = require(`${process.env.GITHUB_WORKSPACE}/js/script.js`);
-            const response = script({github, context});
+            const response = await script({github, context});
             console.log('script returned', response);
       - name: Automerge
         uses: pascalgn/automerge-action@v0.12.0
