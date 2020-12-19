@@ -1,0 +1,5 @@
+# Action can be: go, rest, sleep
+action: go
+
+# Subject can be: home, ship
+subject: ship
