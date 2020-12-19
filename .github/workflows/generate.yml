@@ -20,6 +20,11 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const files = await github.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.number
+            });
             const script = require(`${process.env.GITHUB_WORKSPACE}/js/script.js`);
             const response = await script({github, context});
             console.log('script response', response);
