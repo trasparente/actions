@@ -28,7 +28,8 @@ jobs:
             console.log('context.payload.number', context.payload.number);
             console.log('context.payload.sender.login', context.payload.sender.login);
             const script = require(`${process.env.GITHUB_WORKSPACE}/js/script.js`);
-            console.log('script returned', script({github, context, files}));
+            const response = await script({github, context, files});
+            console.log('script returned', response);
       - name: Automerge
         uses: pascalgn/automerge-action@v0.12.0
         env:
