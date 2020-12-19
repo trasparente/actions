@@ -18,7 +18,8 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            console.log('context', context);
-            console.log('event', ${{ github.event.pull_request.changed_files }});
+            console.log('context.payload.number', context.payload.number);
+            console.log('payload.number', context.payload.sender.login);
+            console.log('event.pull_request', ${{ github.event.pull_request }});
             const script = require(`${process.env.GITHUB_WORKSPACE}/js/script.js`);
-            console.log('script', script({github, context}));
+            console.log('script returned', script({github, context}));
