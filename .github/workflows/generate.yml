@@ -1,0 +1,24 @@
+name: Check for automerge
+on:
+  # Improvements for public repository forks
+  # new `pull_request_target` event
+  # https://github.blog/2020-08-03-github-actions-improvements-for-fork-and-pull-request-workflows/
+  pull_request_target:
+    # By default workflow runs on `opened` type
+    types: [ opened ]
+    branches: [ main ]
+    # If at least one path matches a pattern in the paths filter, the workflow runs
+    paths: [ '_data/players/**' ]
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/github-script@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            console.log('context', context);
+            console.log('event', ${{ github.event.pull_request.changed_files }});
+            const script = require(`${process.env.GITHUB_WORKSPACE}/js/script.js`);
+            console.log('script', script({github, context}));
