@@ -18,8 +18,13 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const files = await octokit.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.number
+            });
             console.log('context.payload.number', context.payload.number);
-            console.log('payload.number', context.payload.sender.login);
+            console.log('context.payload.sender.login', context.payload.sender.login);
             console.log('event.pull_request', ${{ github.event.pull_request }});
             const script = require(`${process.env.GITHUB_WORKSPACE}/js/script.js`);
-            console.log('script returned', script({github, context}));
+            console.log('script returned', script({github, context, files}));
