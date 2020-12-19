@@ -1,5 +1,5 @@
 module.exports = ({github, context}) => {
-  const get_pull = (response) => {
+  function get_pull(response){
     console.log([response.data.filename, response.data.contents_url]);
     return true;
   };
