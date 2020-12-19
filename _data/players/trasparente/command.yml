@@ -1,5 +1,5 @@
 # Action can be: go, rest, sleep, eat
-action: go async
+action: response
 
 # Subject can be: home, ship
 subject: domani
