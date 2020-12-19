@@ -25,6 +25,8 @@ jobs:
               repo: context.repo.repo,
               pull_number: context.payload.number
             });
+            console.log('context.payload.number', context.payload.number);
+            console.log('context.payload.sender.login', context.payload.sender.login);
             const script = require(`${process.env.GITHUB_WORKSPACE}/js/script.js`);
             const response = await script({github, context, files});
-            console.log('script response', response);
+            console.log('script returned', response);
