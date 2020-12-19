@@ -20,15 +20,8 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const files = await github.pulls.listFiles({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.payload.number
-            });
-            console.log('context.payload.number', context.payload.number);
-            console.log('context.payload.sender.login', context.payload.sender.login);
             const script = require(`${process.env.GITHUB_WORKSPACE}/js/script.js`);
-            const response = await script({github, context, files});
+            const response = await script({github, context});
             console.log('script returned', response);
       - name: Automerge
         uses: pascalgn/automerge-action@v0.12.0
