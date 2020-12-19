@@ -1,11 +1,11 @@
 module.exports = ({github, context, files}) => {
-  console.log('from inside', files.data);
+  console.log('from inside', files);
   const files_double = github.pulls.listFiles({
     owner: context.repo.owner,
     repo: context.repo.repo,
     pull_number: context.payload.number
   }).then((response) => {
-    console.log(response.data);
+    console.log('tenure', response.data);
     return response;
   });
 }
