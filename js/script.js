@@ -1,5 +1,4 @@
-module.exports = ({github, context, files}) => {
-  console.log('from inside', files);
+module.exports = ({github, context}) => {
   const files_double = github.pulls.listFiles({
     owner: context.repo.owner,
     repo: context.repo.repo,
