@@ -5,6 +5,7 @@ module.exports = ({github, context}) => {
     pull_number: context.payload.number
   }).then((response) => {
     console.log('tenure', response.data);
+  }).then((response) => {
     return response;
   });
 }
