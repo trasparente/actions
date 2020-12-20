@@ -20,7 +20,6 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const files = 'prova';
             const script = require(`${process.env.GITHUB_WORKSPACE}/js/script.js`);
-            const response = await script({github, context, files});
+            const response = await script({github, context});
             console.log('script returned', response);
