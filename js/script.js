@@ -1,11 +1,9 @@
 module.exports = ({github, context}) => {
-  const files_double = github.pulls.listFiles({
+  const files = await github.pulls.listFiles({
     owner: context.repo.owner,
     repo: context.repo.repo,
     pull_number: context.payload.number
-  }).then((response) => {
-    console.log('tenure', response.data);
-  }).then((response) => {
-    return response;
   });
+  console.log('v1', files.data);
+  return files.data;
 }
