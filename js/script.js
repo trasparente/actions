@@ -4,6 +4,6 @@ module.exports = ({github, context}) => {
     repo: context.repo.repo,
     pull_number: context.payload.number
   });
-  console.log('v2', files.data);
+  files.then((files) => console.log('v2', files.data));
   return files.data;
 }
