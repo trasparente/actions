@@ -4,10 +4,14 @@ module.exports = ({github, context}) => {
     repo: context.repo.repo,
     pull_number: context.payload.number
   });
-  listFiles.then((response) => {
-    response.data.map((file) => {
-      console.log(file.filename, file.contents_url);
+  const loop = listFiles.then((response) => {
+    const output = response.data.map((file) => {
+      console.log(file);
+      return file;
     });
+  });
+  loop.then((array) => {
+    console.log("final", array.length);
   });
   return true;
 }
