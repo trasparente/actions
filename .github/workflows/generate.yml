@@ -16,8 +16,8 @@ jobs:
       - uses: actions/checkout@v2
         name: Checkout
       - uses: actions/github-script@v3
-        name: Query file
+        name: Require module
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            require(`${process.env.GITHUB_WORKSPACE}/js/script.js`)({github, context});
+            require(`${ process.env.GITHUB_WORKSPACE }/js/script.js`)({github, context});
