@@ -20,16 +20,5 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const path = `${process.env.GITHUB_WORKSPACE}/js/script.js`;
-            const script = require(path)(function(err, theModels) {
-              if (err) {
-                console.log('err', err);
-              } else {
-                console.log('gone', theModels);
-              }
-            });
-            const response = await script({github, context});
-            console.log('script returned', response);
-            //const script = require(`${process.env.GITHUB_WORKSPACE}/js/script.js`);
-            //const response = await script({github, context});
-            //console.log('script returned', response);
+            const script = require(`${process.env.GITHUB_WORKSPACE}/js/script.js`);
+            const response = script({github, context});
