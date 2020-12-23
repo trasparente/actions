@@ -20,4 +20,4 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const script = require(`${process.env.GITHUB_WORKSPACE}/js/script.js`)({github, context});
+            require(`${process.env.GITHUB_WORKSPACE}/js/script.js`)({github, context});
