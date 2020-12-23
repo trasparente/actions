@@ -9,6 +9,7 @@ module.exports = ({github, context}) => {
       console.log(file);
       return file;
     });
+    return output;
   });
   loop.then((array) => {
     console.log("final", array.length);
