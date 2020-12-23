@@ -8,7 +8,7 @@ module.exports = ({github, context}) => {
     // Loop files and get content
     return response.data.map((file) => {
       console.log("GET " + file.contents_url);
-      github.request("GET " + file.contents_url).then((content) => return content.data;)
+      return github.request("GET " + file.contents_url).then((content) => content.data;)
     });
   }).then((array) => {
     // log contents array
