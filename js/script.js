@@ -6,6 +6,6 @@ module.exports = ({github, context}) => {
   });
   files.then((files) => {
     console.log('v4', files.data);
-    return files.data;
   });
+  return true;
 }
