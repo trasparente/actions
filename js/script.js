@@ -1,6 +1,6 @@
 module.exports = ({github, context}) => {
 
-  console.log('context', context);
+  console.log('context', context.payload, context.repo);
 
   // List pull request files
   // Return a promised array {filename: "_data/players/trasparente/profile.json", contents_url: "..."}
@@ -23,5 +23,5 @@ module.exports = ({github, context}) => {
   const log = contents => contents.forEach(content => console.log(content.data.name, content.data.path, JSON.parse(atob(content.data.content))));
 
   // RETURN MODULE
-  return listFiles().then(request_array).then(chain).then(log);
+  return listFiles.then(request_array).then(chain).then(log);
 }
