@@ -22,7 +22,7 @@ module.exports = ({github, context}) => {
 
   // LOG
   // All promises resolved, checkpoint
-  const log = contents => contents.forEach(content => console.log(content.data.name, content.data.path, JSON.parse(atob(content.data.content))));
+  const log = contents => contents.forEach(content => console.log(content.data.name, content.data.path, JSON.parse(Buffer.from(content.data.content, 'base64').toString('binary'))));
 
   // RETURN MODULE
   return listFiles.then(request_array).then(chain).then(log);
