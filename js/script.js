@@ -1,8 +1,6 @@
 module.exports = ({github, context}) => {
 
-  console.log('context.payload', context.payload);
-  console.log('context.repo', context.repo);
-  console.log('context.payload.sender.login', context.payload.sender.login);
+  console.log('context.actor', context.actor);
 
   // List pull request files
   // Return a promised array {filename: "_data/players/trasparente/profile.json", contents_url: "..."}
