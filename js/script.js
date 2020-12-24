@@ -24,4 +24,4 @@ module.exports = (async ({github, context}) => {
 
   // RETURN MODULE
   return listFiles.then(request_array).then(chain).then(log);
-})({github, context});
+})();
