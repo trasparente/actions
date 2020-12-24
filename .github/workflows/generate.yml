@@ -21,5 +21,6 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const script = require(`${ process.env.GITHUB_WORKSPACE }/js/script.js`)
-            const array = async ({github, context}) => await script({github, context})
-            return array;
+            async function f({github, context}) {
+              return await script({github, context})
+            }
