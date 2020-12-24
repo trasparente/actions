@@ -1,4 +1,4 @@
-module.exports = ({github, context}) => {
+module.exports = (async ({github, context}) => {
 
   console.log('context.actor', context.actor);
 
@@ -20,8 +20,8 @@ module.exports = ({github, context}) => {
 
   // LOG
   // All promises resolved, checkpoint
-  const log = contents => contents.forEach(content => console.log(content.data.name, content.data.path, JSON.parse(Buffer.from(content.data.content, 'base64').toString('binary'))));
+  const log = contents => contents.map(content => [content.data.name, content.data.path, JSON.parse(Buffer.from(content.data.content, 'base64').toString('binary'))]);
 
   // RETURN MODULE
   return listFiles.then(request_array).then(chain).then(log);
-}
+})();
