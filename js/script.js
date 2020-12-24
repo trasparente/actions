@@ -12,7 +12,7 @@ module.exports = async ({github, context}) => {
   
   // Loop files and get request contents
   // Return an array of promises {name: "profile.json", content: "..."}
-  const request_array = async (listFiles) => listFiles.data.map(file => await github.request(`GET ${file.contents_url}`))
+  const request_array = async (listFiles) => listFiles.data.map((file) => await github.request(`GET ${file.contents_url}`))
 
   // CHAIN PROMISES
   // Execute in parallel and wait all, return array of contents objects
