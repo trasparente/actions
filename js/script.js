@@ -25,4 +25,4 @@ module.exports = ({github, context}) => {
   // RETURN MODULE
   listFiles.then(request_array).then(chain).then(log)
   return true
-})
+}
