@@ -20,4 +20,6 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            require(`${ process.env.GITHUB_WORKSPACE }/js/script.js`)({github, context});
+            console.log(process);
+            const array = await require(`${ process.env.GITHUB_WORKSPACE }/js/script.js`)({github, context});
+            return array;
